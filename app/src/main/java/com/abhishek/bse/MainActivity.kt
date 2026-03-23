@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -17,15 +16,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.abhishek.bse.ui.theme.BottomSheetExperimentsTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -36,7 +28,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val sheetState = rememberModalBottomSheetState()
             val scope = rememberCoroutineScope()
-            var showBottomSheet by remember { mutableStateOf(false) }
+            val isSheetVisible = sheetState.isVisible
 
             Scaffold(
                 floatingActionButton = {
@@ -44,7 +36,7 @@ class MainActivity : ComponentActivity() {
                         text = { Text("Show bottom sheet") },
                         icon = { Icon(Icons.Filled.Add, contentDescription = "") },
                         onClick = {
-                            showBottomSheet = true
+                            scope.launch { sheetState.show() }
                         }
                     )
                 }
@@ -52,20 +44,14 @@ class MainActivity : ComponentActivity() {
                 // just to shut AS up regarding contentPadding
                 Box(modifier = Modifier.padding(contentPadding))
 
-                if (showBottomSheet) {
+                if (isSheetVisible) {
                     ModalBottomSheet(
-                        onDismissRequest = {
-                            showBottomSheet = false
-                        },
+                        onDismissRequest = {},
                         sheetState = sheetState
                     ) {
                         // Sheet content
                         Button(onClick = {
-                            scope.launch { sheetState.hide() }.invokeOnCompletion {
-                                if (!sheetState.isVisible) {
-                                    showBottomSheet = false
-                                }
-                            }
+                            scope.launch { sheetState.hide() }
                         }) {
                             Text("Hide bottom sheet")
                         }
